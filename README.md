@@ -1,16 +1,21 @@
-# ✨ Huiyu MD
+# <p align="center"><img src="src-tauri/icons/logo-rounded.png" width="100" alt="Huiyu MD Logo" /></p>
 
 <p align="center">
-  <b>A minimal, lightning-fast Markdown reader for Windows & macOS.</b><br>
-  <sub>Built with Tauri 2.0 · Zero bloat · Instant startup · Dark & Light themes</sub>
+  <h1 align="center">Huiyu MD</h1>
+  <p align="center"><b>A minimal, lightning-fast Markdown reader for Windows & macOS.</b></p>
+  <p align="center"><sub>Zero bloat · Instant startup · Dark & Light themes · Ctrl+scroll zoom</sub></p>
+</p>
+
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/English-blue" alt="English" /></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/%E4%B8%AD%E6%96%87-red" alt="中文" /></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.4.0-blue" alt="Version" />
-  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-333?logo=windows&logoColor=white" alt="Platform" />
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-333" alt="Platform" />
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
   <img src="https://img.shields.io/badge/built_with-Tauri%202.0-orange?logo=tauri" alt="Tauri" />
-  <img src="https://img.shields.io/badge/built_with-React-61dafb?logo=react" alt="React" />
 </p>
 
 <p align="center">
@@ -19,8 +24,8 @@
 
 <table align="center">
   <tr>
-    <td align="center"><img src="docs/screenshots/dark-context.jpg" width="100%" alt="Dark Mode with Context Menu" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
-    <td align="center"><img src="docs/screenshots/light-context.jpg" width="100%" alt="Light Mode with Context Menu" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/dark-context.jpg" width="100%" alt="Dark Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/light-context.jpg" width="100%" alt="Light Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
   </tr>
   <tr>
     <td align="center"><sub><b>🌙 Dark Mode</b></sub></td>
@@ -66,7 +71,7 @@
 
 ### 🎨 Beautiful Rendering
 
-- **KaTeX math** — inline `$...$` and block `$$...$$`
+- **KaTeX math** — inline and block formulas
 - **Code blocks** — syntax highlighting + copy button
 - **Tables, lists, blockquotes** — full GFM support
 
@@ -101,28 +106,28 @@
 
 <div align="center">
 
-### **👉 [Download Latest Release](https://github.com/huiyu9144/Huiyu-MD/releases) 👈**
+### 👉 [Download Latest Release](https://github.com/huiyu9144/Huiyu-MD/releases) 👈
 
 </div>
 
 | Platform | Installer | Notes |
 |----------|-----------|-------|
-| 🪟 **Windows** | [`Huiyu.MD_1.4.0_x64-setup.exe`](https://github.com/huiyu9144/Huiyu-MD/releases) | NSIS — auto file association |
-| 🪟 **Windows** | [`Huiyu.MD_1.4.0_x64_en-US.msi`](https://github.com/huiyu9144/Huiyu-MD/releases) | MSI — enterprise deployment |
-| 🍎 **macOS (Universal)** | [`Huiyu.MD_1.4.0_universal.dmg`](https://github.com/huiyu9144/Huiyu-MD/releases) | Intel + Apple Silicon |
-| 🍎 **macOS (Intel)** | [`Huiyu.MD_1.4.0_x64.dmg`](https://github.com/huiyu9144/Huiyu-MD/releases) | For Intel Macs |
-| 🍎 **macOS (Apple Silicon)** | [`Huiyu.MD_1.4.0_aarch64.dmg`](https://github.com/huiyu9144/Huiyu-MD/releases) | For M1/M2/M3/M4 |
+| 🪟 **Windows** | `Huiyu.MD_x64-setup.exe` | NSIS installer — auto file association |
+| 🪟 **Windows** | `Huiyu.MD_x64_en-US.msi` | MSI installer — enterprise deployment |
+| 🍎 **macOS** | `Huiyu.MD_universal.dmg` | Universal — Intel + Apple Silicon |
 
 ---
 
 ## 🛠️ Install
 
-### Windows
-Run the installer → done. It automatically:
+### 🪟 Windows
+
+Run the `.exe` installer → done. It automatically:
 - Registers `.md` / `.txt` as default handler
 - Adds "Open with Huiyu MD" to right-click menu
 
-### macOS
+### 🍎 macOS
+
 Mount the `.dmg` → drag **Huiyu MD** to **Applications** → done.
 
 > Requires macOS 10.15 (Catalina) or later.
@@ -151,11 +156,7 @@ npm run tauri dev
 ### Build
 
 ```bash
-# Standard build
 npm run tauri build
-
-# macOS universal binary (Intel + Apple Silicon)
-npm run tauri build -- --target universal-apple-darwin --bundles dmg
 ```
 
 ---
@@ -165,8 +166,8 @@ npm run tauri build -- --target universal-apple-darwin --bundles dmg
 ```
 Huiyu MD/
 ├── src/
-│   ├── App.tsx              ← Main component + orchestration
-│   ├── MarkdownRenderer.tsx ← Markdown → HTML (KaTeX + GFM)
+│   ├── App.tsx              ← Main component
+│   ├── MarkdownRenderer.tsx ← Markdown rendering (KaTeX + GFM)
 │   ├── MarkdownEditor.tsx   ← CodeMirror 6 editor
 │   ├── index.css            ← Theme variables
 │   └── main.tsx             ← React entry
@@ -187,17 +188,15 @@ Huiyu MD/
 | Tiny bundle | `React.lazy` + code splitting → 213 kB |
 | Fast file reads | Rust `std::fs::read_to_string` |
 | Single IPC call | Path + content in one `invoke` |
-| Cached modules | `invoke`, `getCurrentWindow` cached |
 
 ---
 
 ## 📄 License
 
-[MIT](LICENSE) — feel free to use, modify, and distribute.
+[MIT](LICENSE)
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ using <b>Tauri</b>, <b>React</b>, and <b>Vite</b></sub><br>
-  <sub>⭐ Star this repo if you find it useful!</sub>
+  <sub>Built with ❤️ using <b>Tauri</b>, <b>React</b>, and <b>Vite</b></sub>
 </p>
