@@ -5,13 +5,28 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 ![macOS](https://img.shields.io/badge/platform-macOS-333?logo=apple) ![Windows](https://img.shields.io/badge/platform-Windows-0078D4?logo=windows) ![License](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
-  <img src="docs/screenshots/dark-mode.jpg" width="48%" alt="Dark Mode" />
-  <img src="docs/screenshots/light-mode.jpg" width="48%" alt="Light Mode" />
+  <img src="docs/screenshots/welcome.jpg" width="70%" alt="Huiyu MD — Welcome" style="border-radius:12px; box-shadow: 0 8px 32px rgba(0,0,0,0.45);" />
 </p>
-<p align="center">
-  <img src="docs/screenshots/context-menu-dark.jpg" width="48%" alt="Context Menu - View Mode" />
-  <img src="docs/screenshots/context-menu-edit.jpg" width="48%" alt="Context Menu - Edit Mode" />
-</p>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/dark-mode.jpg" width="100%" alt="Dark Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/light-mode.jpg" width="100%" alt="Light Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><sub><b>Dark Mode</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Light Mode</b></sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/context-menu-dark.jpg" width="100%" alt="Context Menu — View Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/context-menu-edit.jpg" width="100%" alt="Context Menu — Edit Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><sub><b>Right-click Context Menu</b> — Zoom In / Out, Copy, Edit, Theme Toggle</sub></td>
+  </tr>
+</table>
 
 ## Features
 
