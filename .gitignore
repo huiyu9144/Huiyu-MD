@@ -1,0 +1,7 @@
+node_modules/
+dist/
+target/
+.env
+.DS_Store
+*.log
+src-tauri/gen/schemas/
