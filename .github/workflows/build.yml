@@ -45,42 +45,8 @@ jobs:
           CI: true
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      - name: Notarize
-        if: env.APPLE_ID != ''
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: |
-          DMG=$(ls src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)
-          echo "Notarizing: $DMG"
-          xcrun notarytool submit "$DMG" \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_ID_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait \
-            --output-format json > /tmp/notary-result.json || true
-          
-          STATUS=$(cat /tmp/notary-result.json | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null || echo "unknown")
-          echo "Notarization status: $STATUS"
-          
-          if [ "$STATUS" != "Accepted" ]; then
-            SUBMISSION_ID=$(cat /tmp/notary-result.json | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null || echo "")
-            if [ -n "$SUBMISSION_ID" ]; then
-              echo "Fetching detailed log for submission: $SUBMISSION_ID"
-              xcrun notarytool log "$SUBMISSION_ID" \
-                --apple-id "$APPLE_ID" \
-                --password "$APPLE_ID_PASSWORD" \
-                --team-id "$APPLE_TEAM_ID" || true
-            fi
-            echo "--- Notarization FAILED with status: $STATUS ---"
-            exit 1
-          fi
-          
-          echo "Notarization accepted!"
-          xcrun stapler staple "$DMG"
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:

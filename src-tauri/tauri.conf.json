@@ -70,6 +70,9 @@
     "macOS": {
       "minimumSystemVersion": "10.15",
       "exceptionDomain": "",
+      "signingIdentity": "Developer ID Application",
+      "hardenedRuntime": true,
+      "entitlements": null,
       "dmg": {
         "appPosition": {
           "x": 180,
