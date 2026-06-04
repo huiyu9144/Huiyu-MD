@@ -40,25 +40,6 @@ Run the NSIS installer (recommended). It will:
 Mount the `.dmg` and drag "Huiyu MD" to your **Applications** folder.
 
 > **Note:** macOS requires **10.15 (Catalina)** or later.
-> Huiyu MD is **not code-signed** (requires Apple Developer membership). Gatekeeper will block it on first launch.
-
-**First-time launch (recommended):**
-
-Open **Terminal** and run:
-
-```bash
-sudo xattr -d com.apple.quarantine /Applications/Huiyu\ MD.app
-```
-
-This removes the quarantine flag. After this, the app opens normally with double-click.
-
-**Or (one-time manual bypass):**
-
-1. Open **Finder** → **Applications**
-2. **Right-click** `Huiyu MD.app` → **Open**
-3. Click **Open** in the dialog
-
-> After doing either of these once, you can double-click to open normally from then on.
 
 ## Development
 
