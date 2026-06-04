@@ -1,4 +1,4 @@
-import {
+﻿import {
   useState,
   useCallback,
   useRef,
@@ -7,7 +7,7 @@ import {
   lazy,
   Suspense,
 } from "react";
-import { Clipboard, ClipboardPaste, FolderOpen, Moon, Pencil, RotateCcw, Save, Scissors, SquareDashedMousePointer, Sun, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Clipboard, ClipboardPaste, Coffee, FolderOpen, Info, Moon, Pencil, RotateCcw, Save, Scissors, SquareDashedMousePointer, Sun, X, ZoomIn, ZoomOut } from "lucide-react";
 
 const MarkdownRenderer = lazy(async () => ({ default: (await import("./MarkdownRenderer")).MarkdownRenderer }));
 const MarkdownEditor = lazy(async () => ({ default: (await import("./MarkdownEditor")).MarkdownEditor }));
@@ -93,6 +93,10 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('zoom', String(zoom)); } catch {}
   }, [zoom]);
+
+  const [showCoffee, setShowCoffee] = useState(false);
+  const [coffeeTab, setCoffeeTab] = useState<"wechat" | "alipay" | "paypal">("wechat");
+  const [showAbout, setShowAbout] = useState(false);
 
   const ZOOM_MIN = 25;
   const ZOOM_MAX = 400;
@@ -347,6 +351,9 @@ export default function App() {
           { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
           { separator: true },
           { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
+          { separator: true },
+          { label: "Buy Me a Coffee", icon: <Coffee size={12} />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
+          { label: "About", icon: <Info size={12} />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
       } else {
@@ -364,11 +371,14 @@ export default function App() {
           { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
           { separator: true },
           { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
+          { separator: true },
+          { label: "Buy Me a Coffee", icon: <Coffee size={12} />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
+          { label: "About", icon: <Info size={12} />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
       }
     },
-    [isDark, toggleTheme, saveEdit, cancelEdit, enterEdit, handleOpen, filePath, fileName, zoom, zoomIn, zoomOut, zoomReset]
+    [isDark, toggleTheme, saveEdit, cancelEdit, enterEdit, handleOpen, filePath, fileName, zoom, zoomIn, zoomOut, zoomReset, setShowCoffee, setShowAbout]
   );
 
   // Close context menu on click outside
@@ -602,6 +612,113 @@ export default function App() {
           ))}
         </div>
       )}
+
+
+
+      {showCoffee && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={() => setShowCoffee(false)}>
+          <div
+            className={`rounded-xl border p-5 shadow-2xl ${isDark ? "border-neutral-700 bg-neutral-900 text-neutral-200" : "border-neutral-300 bg-white text-neutral-800"}`}
+            style={{ width: 320 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Coffee size={16} />
+                Buy Me a Coffee
+              </div>
+              <button onClick={() => setShowCoffee(false)} className="rounded p-1 hover:bg-neutral-700/50">
+                <X size={14} />
+              </button>
+            </div>
+            <div className="mb-3 flex items-center justify-center gap-3">
+              {(["wechat", "alipay", "paypal"] as const).map((tab) => (
+                <span
+                  key={tab}
+                  className={`cursor-pointer text-xs transition-colors ${coffeeTab === tab
+                    ? "font-medium text-[#75B3CB]"
+                    : isDark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
+                  }`}
+                  onMouseEnter={() => setCoffeeTab(tab)}
+                  onClick={() => setCoffeeTab(tab)}
+                >
+                  {tab === "wechat" ? "WeChat" : tab === "alipay" ? "Alipay" : "PayPal"}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={`/images/${coffeeTab === "wechat" ? "wechat" : coffeeTab === "alipay" ? "alipay" : "paypal"}-qr.jpg`}
+                alt={coffeeTab}
+                className="h-40 w-40 rounded-lg border object-contain"
+                style={{ borderColor: isDark ? "#525252" : "#d4d4d4" }}
+              />
+              {coffeeTab === "paypal" && (
+                <a
+                  href="https://www.paypal.com/ncp/payment/WBPVVVJRMZNHQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-40 rounded-md bg-neutral-100 py-1.5 text-center text-xs font-semibold text-neutral-900 transition-colors hover:bg-neutral-300"
+                >
+                  PayPal
+                </a>
+              )}
+            </div>
+            <p className={`mt-3 text-center text-[10px] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+              Thank you for your support!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {showAbout && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={() => setShowAbout(false)}>
+          <div
+            className={`rounded-xl border p-6 shadow-2xl ${isDark ? "border-neutral-700 bg-neutral-900 text-neutral-200" : "border-neutral-300 bg-white text-neutral-800"}`}
+            style={{ width: 320 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Info size={16} />
+                About
+              </div>
+              <button onClick={() => setShowAbout(false)} className="rounded p-1 hover:bg-neutral-700/50">
+                <X size={14} />
+              </button>
+            </div>
+            <div className="flex flex-col items-center gap-3">
+              <img src="/logo.png" alt="Huiyu MD" className="h-16 w-16 rounded-xl" />
+              <div className="text-center">
+                <div className="text-sm font-bold">Huiyu MD</div>
+                <div className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>v1.4.0</div>
+              </div>
+              <div className={`w-full rounded-lg border p-3 text-xs ${isDark ? "border-neutral-700 bg-neutral-800" : "border-neutral-200 bg-neutral-50"}`}>
+                <div className="mb-2 text-center font-medium">Developer</div>
+                <div className="flex flex-col items-center gap-2">
+                  <a
+                    href="https://www.huiyu.ai"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
+                  >
+                    🌐 www.huiyu.ai
+                  </a>
+                  <a
+                    href="https://github.com/huiyu9144/Huiyu-MD"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
+                  >
+                    💻 GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
