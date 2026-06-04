@@ -1,4 +1,4 @@
-# Huiyu MD
+﻿# Huiyu MD
 
 A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **React**.
 
@@ -22,8 +22,9 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 |---|---|
 | Windows | `Huiyu.MD_1.0.0_x64-setup.exe` (NSIS) |
 | Windows | `Huiyu.MD_1.0.0_x64_en-US.msi` (MSI) |
-| macOS | `Huiyu.MD_1.0.0_x64.dmg` (Intel) |
-| macOS | `Huiyu.MD_1.0.0_aarch64.dmg` (Apple Silicon) |
+| macOS (Intel) | `Huiyu.MD_1.0.0_x64.dmg` |
+| macOS (Apple Silicon) | `Huiyu.MD_1.0.0_aarch64.dmg` |
+| macOS (Universal) | `Huiyu.MD_1.0.0_universal.dmg` |
 
 👉 **[Download the latest Release](https://github.com/huiyu9144/Huiyu-MD/releases)**
 
@@ -32,14 +33,32 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 Run the NSIS installer (recommended). It will:
 - Install the app
 - Register `.md` / `.txt` as default file handler
-- Add "Open with Huiyu MD" to every file's right-click menu
+- Add "Open with Huiyu MD" to every file right-click menu
 
 ### macOS
 
 Mount the `.dmg` and drag "Huiyu MD" to your **Applications** folder.
 
-> **Note:** macOS requires **10.15 (Catalina)** or later.  
-> On first launch, right-click the app → **Open** to bypass Gatekeeper.
+> **Note:** macOS requires **10.15 (Catalina)** or later.
+> Huiyu MD is **not code-signed** (requires Apple Developer membership). Gatekeeper will block it on first launch.
+
+**First-time launch (recommended):**
+
+Open **Terminal** and run:
+
+```bash
+sudo xattr -d com.apple.quarantine /Applications/Huiyu\ MD.app
+```
+
+This removes the quarantine flag. After this, the app opens normally with double-click.
+
+**Or (one-time manual bypass):**
+
+1. Open **Finder** → **Applications**
+2. **Right-click** `Huiyu MD.app` → **Open**
+3. Click **Open** in the dialog
+
+> After doing either of these once, you can double-click to open normally from then on.
 
 ## Development
 
@@ -75,7 +94,7 @@ npm run tauri build -- --target universal-apple-darwin --bundles dmg
 ```
 src/
 ├── App.tsx              # Main app component + file-open orchestration
-├── MarkdownRenderer.tsx  # Markdown → HTML (react-markdown + KaTeX)
+├── MarkdownRenderer.tsx  # Markdown to HTML (react-markdown + KaTeX)
 ├── MarkdownEditor.tsx    # CodeMirror 6 editor
 ├── index.css             # Global styles / theme variables
 └── main.tsx              # React entry point
@@ -91,7 +110,7 @@ src-tauri/
 
 | Technique | Benefit |
 |---|---|
-| `visible: false` → `show()` | No white flash; window appears only when content is ready |
+| `visible: false` to `show()` | No white flash; window appears only when content is ready |
 | `React.lazy` + code splitting | 213 kB initial bundle (vs 1.27 MB) |
 | Rust-side `std::fs::read_to_string` | Reads files directly, bypasses JS fs scope checks |
 | Single IPC call for startup | Returns path + content in one `invoke` |
