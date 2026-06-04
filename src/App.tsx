@@ -665,7 +665,7 @@ export default function App() {
               )}
             </div>
             <p className={`mt-3 text-center text-[10px] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
-              Thank you for your support!
+              Thank you for your support! cheers 🍺
             </p>
           </div>
         </div>
@@ -696,22 +696,18 @@ export default function App() {
               <div className={`w-full rounded-lg border p-3 text-xs ${isDark ? "border-neutral-700 bg-neutral-800" : "border-neutral-200 bg-neutral-50"}`}>
                 <div className="mb-2 text-center font-medium">Developer</div>
                 <div className="flex flex-col items-center gap-2">
-                  <a
-                    href="https://www.huiyu.ai"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => window.open("https://www.huiyu.ai", "_blank")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     🌐 www.huiyu.ai
-                  </a>
-                  <a
-                    href="https://github.com/huiyu9144/Huiyu-MD"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  </button>
+                  <button
+                    onClick={() => window.open("https://github.com/huiyu9144/Huiyu-MD", "_blank")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     💻 GitHub
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
