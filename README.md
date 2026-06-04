@@ -10,21 +10,12 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 
 <table align="center">
   <tr>
-    <td align="center"><img src="docs/screenshots/dark-mode.jpg" width="100%" alt="Dark Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
-    <td align="center"><img src="docs/screenshots/light-mode.jpg" width="100%" alt="Light Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/dark-context.jpg" width="100%" alt="Dark Mode with Context Menu" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
+    <td align="center"><img src="docs/screenshots/light-context.jpg" width="100%" alt="Light Mode with Context Menu" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
   </tr>
   <tr>
-    <td align="center" colspan="2"><sub><b>Dark Mode</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Light Mode</b></sub></td>
-  </tr>
-</table>
-
-<table align="center">
-  <tr>
-    <td align="center"><img src="docs/screenshots/context-menu-dark.jpg" width="100%" alt="Context Menu — View Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
-    <td align="center"><img src="docs/screenshots/context-menu-edit.jpg" width="100%" alt="Context Menu — Edit Mode" style="border-radius:10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" /></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><sub><b>Right-click Context Menu</b> — Zoom In / Out, Copy, Edit, Theme Toggle</sub></td>
+    <td align="center"><sub><b>Dark Mode</b></sub></td>
+    <td align="center"><sub><b>Light Mode</b></sub></td>
   </tr>
 </table>
 
