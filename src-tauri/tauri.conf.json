@@ -70,9 +70,6 @@
     "macOS": {
       "minimumSystemVersion": "10.15",
       "exceptionDomain": "",
-      "signing": {
-        "hardenedRuntime": false
-      },
       "dmg": {
         "appPosition": {
           "x": 180,
