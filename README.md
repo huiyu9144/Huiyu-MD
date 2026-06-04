@@ -1,8 +1,17 @@
-﻿# Huiyu MD
+# Huiyu MD
 
 A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **React**.
 
 ![macOS](https://img.shields.io/badge/platform-macOS-333?logo=apple) ![Windows](https://img.shields.io/badge/platform-Windows-0078D4?logo=windows) ![License](https://img.shields.io/badge/license-MIT-green)
+
+<p align="center">
+  <img src="docs/screenshots/dark-mode.jpg" width="48%" alt="Dark Mode" />
+  <img src="docs/screenshots/light-mode.jpg" width="48%" alt="Light Mode" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/context-menu-dark.jpg" width="48%" alt="Context Menu - View Mode" />
+  <img src="docs/screenshots/context-menu-edit.jpg" width="48%" alt="Context Menu - Edit Mode" />
+</p>
 
 ## Features
 
@@ -10,8 +19,9 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 - **Markdown rendering** with KaTeX math formula support
 - **Code editing** via CodeMirror 6 (syntax highlighting, undo/redo)
 - **Dark / Light theme** — automatically persists preference
+- **Ctrl+scroll zoom** — zoom in/out with mouse wheel, or via right-click menu (25%–400%)
 - **File association** — open .md / .txt files by double-clicking
-- **Context menu** — "Open with Huiyu MD" for any file
+- **Context menu** — copy, edit, open, zoom, theme toggle
 - **Drag & drop** — drop files directly into the window
 - **Single instance** — reuses existing window; no duplicate processes
 - **Cross-platform** — Windows (NSIS/MSI) and macOS (DMG)
@@ -20,11 +30,11 @@ A fast, beautiful Markdown & Text file viewer built with **Tauri 2.0** and **Rea
 
 | Platform | Installer |
 |---|---|
-| Windows | `Huiyu.MD_1.0.0_x64-setup.exe` (NSIS) |
-| Windows | `Huiyu.MD_1.0.0_x64_en-US.msi` (MSI) |
-| macOS (Intel) | `Huiyu.MD_1.0.0_x64.dmg` |
-| macOS (Apple Silicon) | `Huiyu.MD_1.0.0_aarch64.dmg` |
-| macOS (Universal) | `Huiyu.MD_1.0.0_universal.dmg` |
+| Windows | `Huiyu.MD_1.4.0_x64-setup.exe` (NSIS) |
+| Windows | `Huiyu.MD_1.4.0_x64_en-US.msi` (MSI) |
+| macOS (Intel) | `Huiyu.MD_1.4.0_x64.dmg` |
+| macOS (Apple Silicon) | `Huiyu.MD_1.4.0_aarch64.dmg` |
+| macOS (Universal) | `Huiyu.MD_1.4.0_universal.dmg` |
 
 👉 **[Download the latest Release](https://github.com/huiyu9144/Huiyu-MD/releases)**
 
