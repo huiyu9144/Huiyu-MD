@@ -1,4 +1,4 @@
-name: Build and Release
+﻿name: Build and Release
 
 on:
   push:
@@ -60,7 +60,9 @@ jobs:
             --apple-id "$APPLE_ID" \
             --password "$APPLE_ID_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
-            --wait
+            --wait \
+            --log
+          echo "--- Notarization log above ---"
           xcrun stapler staple "$DMG"
       - name: Upload DMG
         uses: actions/upload-artifact@v4
