@@ -7,7 +7,7 @@ import {
   lazy,
   Suspense,
 } from "react";
-import { Clipboard, ClipboardPaste, FolderOpen, Moon, Pencil, Save, Scissors, SquareDashedMousePointer, Sun, X } from "lucide-react";
+import { Clipboard, ClipboardPaste, FolderOpen, Moon, Pencil, RotateCcw, Save, Scissors, SquareDashedMousePointer, Sun, X, ZoomIn, ZoomOut } from "lucide-react";
 
 const MarkdownRenderer = lazy(async () => ({ default: (await import("./MarkdownRenderer")).MarkdownRenderer }));
 const MarkdownEditor = lazy(async () => ({ default: (await import("./MarkdownEditor")).MarkdownEditor }));
@@ -66,6 +66,16 @@ export default function App() {
   const [isDirty, setIsDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [ctxMenu, setCtxMenu] = useState<CtxMenu | null>(null);
+  const [zoom, setZoom] = useState(() => {
+    try {
+      const saved = localStorage.getItem('zoom');
+      if (saved) {
+        const n = Number(saved);
+        if (n >= 25 && n <= 400) return n;
+      }
+    } catch {}
+    return 100;
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [bottomH, setBottomH] = useState(30);
@@ -79,6 +89,28 @@ export default function App() {
   contentRef.current = content;
   const editContentRef = useRef("");
   editContentRef.current = editContent;
+
+  useEffect(() => {
+    try { localStorage.setItem('zoom', String(zoom)); } catch {}
+  }, [zoom]);
+
+  const ZOOM_MIN = 25;
+  const ZOOM_MAX = 400;
+  const ZOOM_STEP = 10;
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setZoom((z) => {
+      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+      return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z + delta));
+    });
+  }, []);
+
+  const zoomIn = useCallback(() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP)), []);
+  const zoomOut = useCallback(() => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP)), []);
+  const zoomReset = useCallback(() => setZoom(100), []);
 
   useEffect(() => {
     const theme = isDark ? "dark" : "light";
@@ -310,6 +342,10 @@ export default function App() {
           { label: "Save", icon: <Save size={12} />, onClick: saveEdit, disabled: !isDirtyRef.current || savingRef.current },
           { label: "Cancel", icon: <X size={12} />, onClick: cancelEdit, disabled: savingRef.current },
           { separator: true },
+          { label: "Zoom In", icon: <ZoomIn size={12} />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
+          { label: "Zoom Out", icon: <ZoomOut size={12} />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
+          { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
+          { separator: true },
           { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
@@ -323,12 +359,16 @@ export default function App() {
           ...(contentRef.current ? [{ label: "Select All", icon: <SquareDashedMousePointer size={12} />, onClick: clipboard.selectAll }] : []),
           ...(appItems.length > 0 ? [{ separator: true as const }, ...appItems] : []),
           { separator: true },
+          { label: "Zoom In", icon: <ZoomIn size={12} />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
+          { label: "Zoom Out", icon: <ZoomOut size={12} />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
+          { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
+          { separator: true },
           { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
       }
     },
-    [isDark, toggleTheme, saveEdit, cancelEdit, enterEdit, handleOpen, filePath, fileName]
+    [isDark, toggleTheme, saveEdit, cancelEdit, enterEdit, handleOpen, filePath, fileName, zoom, zoomIn, zoomOut, zoomReset]
   );
 
   // Close context menu on click outside
@@ -389,6 +429,8 @@ export default function App() {
         className={`custom-scrollbar relative z-10 flex-1 overflow-auto p-3 transition-colors ${
           mode === "edit" ? "bg-[var(--color-code-bg)]" : "bg-[var(--color-header-bg)]"
         }`}
+        style={{ zoom: zoom / 100 }}
+        onWheel={handleWheel}
       >
         {mode === "view" && !content && (
           <div className="flex h-full flex-col items-center justify-center gap-2.5 text-neutral-500">
