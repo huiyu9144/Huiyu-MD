@@ -66,6 +66,27 @@
         "displayLanguageSelector": false,
         "installerHooks": "installer_hooks.nsh"
       }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "exceptionDomain": "",
+      "signing": {
+        "hardenedRuntime": false
+      },
+      "dmg": {
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        },
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        }
+      }
     }
   }
 }
