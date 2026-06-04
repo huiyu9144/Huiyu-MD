@@ -1,4 +1,4 @@
-﻿import {
+import {
   useState,
   useCallback,
   useRef,
@@ -8,6 +8,7 @@
   Suspense,
 } from "react";
 import { Clipboard, ClipboardPaste, Coffee, FolderOpen, Info, Moon, Pencil, RotateCcw, Save, Scissors, SquareDashedMousePointer, Sun, X, ZoomIn, ZoomOut } from "lucide-react";
+import { open } from "@tauri-apps/plugin-shell";
 
 const MarkdownRenderer = lazy(async () => ({ default: (await import("./MarkdownRenderer")).MarkdownRenderer }));
 const MarkdownEditor = lazy(async () => ({ default: (await import("./MarkdownEditor")).MarkdownEditor }));
@@ -654,14 +655,12 @@ export default function App() {
                 style={{ borderColor: isDark ? "#525252" : "#d4d4d4" }}
               />
               {coffeeTab === "paypal" && (
-                <a
-                  href="https://www.paypal.com/ncp/payment/WBPVVVJRMZNHQ"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => open("https://www.paypal.com/ncp/payment/WBPVVVJRMZNHQ")}
                   className="w-40 rounded-md bg-neutral-100 py-1.5 text-center text-xs font-semibold text-neutral-900 transition-colors hover:bg-neutral-300"
                 >
                   PayPal
-                </a>
+                </button>
               )}
             </div>
             <p className={`mt-3 text-center text-[10px] ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
@@ -697,13 +696,13 @@ export default function App() {
                 <div className="mb-2 text-center font-medium">Developer</div>
                 <div className="flex flex-col items-center gap-2">
                   <button
-                    onClick={() => window.open("https://www.huiyu.ai", "_blank")}
+                    onClick={() => open("https://www.huiyu.ai")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     🌐 www.huiyu.ai
                   </button>
                   <button
-                    onClick={() => window.open("https://github.com/huiyu9144/Huiyu-MD", "_blank")}
+                    onClick={() => open("https://github.com/huiyu9144/Huiyu-MD")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     💻 GitHub
