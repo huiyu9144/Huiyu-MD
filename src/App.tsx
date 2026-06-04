@@ -52,7 +52,13 @@ export default function App() {
   const [content, setContent] = useState("");
   const [fileName, setFileName] = useState("");
   const [filePath, setFilePath] = useState("");
-  const [isDark, setIsDark] = useState(() => { try { return localStorage.getItem('theme') !== 'light'; } catch { return true; } });
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved === 'dark';
+    } catch {}
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [dragOver, setDragOver] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
   const [mode, setMode] = useState("view");
@@ -381,7 +387,7 @@ export default function App() {
       {/* Content area */}
       <div
         className={`custom-scrollbar relative z-10 flex-1 overflow-auto p-3 transition-colors ${
-          mode === "edit" ? "bg-[var(--color-code-bg)]" : "bg-neutral-900"
+          mode === "edit" ? "bg-[var(--color-code-bg)]" : "bg-[var(--color-header-bg)]"
         }`}
       >
         {mode === "view" && !content && (
