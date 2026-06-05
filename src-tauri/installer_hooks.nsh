@@ -1,4 +1,4 @@
-; installer_hooks.nsh - Huiyu MD
+﻿; installer_hooks.nsh - Huiyu MD
 ; Registers Huiyu MD as the default handler for .md and .txt files
 
 !macro NSIS_HOOK_PREINSTALL
@@ -30,8 +30,8 @@
   System::Call 'OLE32::CoCreateInstance(g "{591209C7-767B-42B2-9F16-647EEB5F8AB8}", i 0, i 5, g "{4E530B0A-E611-4C77-A3AC-9031D022281B}", *i .r0)'
   ${If} $0 P<> 0
     ; SetAppAsDefault takes the registered app name from RegisteredApplications key
-    System::Call '$0->3(w "$INSTDIR\${MAINBINARYNAME}.exe", w ".md", i 1)'
-    System::Call '$0->3(w "$INSTDIR\${MAINBINARYNAME}.exe", w ".txt", i 1)'
+    System::Call '$0->3(w "${PRODUCTNAME}", w ".md", i 1)'
+    System::Call '$0->3(w "${PRODUCTNAME}", w ".txt", i 1)'
     System::Call '$0->2()'
   ${EndIf}
   System::Call 'OLE32::CoUninitialize()'

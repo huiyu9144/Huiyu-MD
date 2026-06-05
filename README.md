@@ -1,4 +1,4 @@
-# <p align="center"><img src="src-tauri/icons/logo-rounded.png" width="100" alt="Huiyu MD Logo" /></p>
+﻿# <p align="center"><img src="src-tauri/icons/logo-rounded.png" width="100" alt="Huiyu MD Logo" /></p>
 
 <p align="center">
   <h1 align="center">Huiyu MD</h1>
@@ -112,8 +112,8 @@
 
 | Platform | Installer | Notes |
 |----------|-----------|-------|
-| 🪟 **Windows** | `Huiyu.MD_x64-setup.exe` | NSIS installer — auto file association |
-| 🪟 **Windows** | `Huiyu.MD_x64_en-US.msi` | MSI installer — enterprise deployment |
+| 🪟 **Windows** | `Huiyu.MD_x64-setup.exe` | ⭐ **NSIS installer (推荐)** — 自动文件关联 |
+| 🪟 **Windows** | `Huiyu.MD_x64_en-US.msi` | MSI installer — 企业批量部署，无自动关联 |
 | 🍎 **macOS** | `Huiyu.MD_universal.dmg` | Universal — Intel + Apple Silicon |
 
 ---
@@ -122,7 +122,7 @@
 
 ### 🪟 Windows
 
-Run the `.exe` installer → done. It automatically:
+**推荐下载 `.exe` 版本**（`.msi` 不会自动关联文件）。运行安装程序后自动：
 - Registers `.md` / `.txt` as default handler
 - Adds "Open with Huiyu MD" to right-click menu
 
