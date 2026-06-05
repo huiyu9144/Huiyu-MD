@@ -23,9 +23,8 @@ jobs:
         with: { node-version: "20" }
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with: { targets: "aarch64-apple-darwin,x86_64-apple-darwin" }
+        with: { targets: "aarch64-apple-darwin" }
       - name: Import Apple certificate
-        if: env.APPLE_CERTIFICATE != ''
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -34,10 +33,13 @@ jobs:
           security create-keychain -p temp temp.keychain
           security set-keychain-settings -lut 21600 temp.keychain
           security unlock-keychain -p temp temp.keychain
-          security import /tmp/cert.p12 -k temp.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security import /tmp/cert.p12 -k temp.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp temp.keychain
           security list-keychains -d user -s temp.keychain login.keychain
           rm -f /tmp/cert.p12
+          echo "=== Verifying certificate ==="
+          security find-identity -v -p codesigning temp.keychain
+          security list-keychains -d user
       - name: npm ci
         run: npm ci
       - name: Build Apple Silicon DMG
