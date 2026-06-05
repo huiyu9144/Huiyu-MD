@@ -55,6 +55,70 @@ fn read_startup_file() -> Option<StartupFile> {
     None
 }
 
+/// Register file associations for .md and .txt on Windows.
+/// Called on app startup as a fallback in case the NSIS installer hooks
+/// didn't take full effect (e.g. protected extensions, WOW64 issues).
+#[cfg(windows)]
+fn register_file_assocs() {
+    use winreg::enums::*;
+    use winreg::RegKey;
+
+    let app_exe = match std::env::current_exe() {
+        Ok(p) => p,
+        Err(_) => return,
+    };
+    let cmd = format!("\"{}\" \"%1\"", app_exe.display());
+
+    let hkcu = match RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags("Software\\Classes", KEY_WRITE)
+    {
+        Ok(k) => k,
+        Err(_) => return,
+    };
+
+    // Register .txt ProgID
+    if let Ok(progid) = hkcu.create_subkey("HuiyuMD.txt") {
+        let _ = progid.0.set_value("", &"Text File");
+        if let Ok(cmd_key) = progid.0.create_subkey("shell\\open\\command") {
+            let _ = cmd_key.0.set_value("", &cmd);
+        }
+    }
+
+    // Register .md ProgID
+    if let Ok(progid) = hkcu.create_subkey("HuiyuMD.md") {
+        let _ = progid.0.set_value("", &"Markdown File");
+        if let Ok(cmd_key) = progid.0.create_subkey("shell\\open\\command") {
+            let _ = cmd_key.0.set_value("", &cmd);
+        }
+    }
+
+    // Set extension defaults and OpenWithProgids
+    for ext in &[".txt", ".md"] {
+        // Set default value
+        if let Ok(k) = hkcu.open_subkey_with_flags(ext, KEY_WRITE) {
+            let progid = if *ext == ".txt" { "HuiyuMD.txt" } else { "HuiyuMD.md" };
+            let _ = k.set_value("", &progid);
+        }
+        // Set OpenWithProgids
+        if let Ok(owp) = hkcu.create_subkey(&format!("{}\\OpenWithProgids", ext)) {
+            let progid = if *ext == ".txt" { "HuiyuMD.txt" } else { "HuiyuMD.md" };
+            let _ = owp.0.set_value(progid, &"");
+        }
+        // Delete UserChoice
+        let _ = hkcu.delete_subkey_all(&format!("{}\\UserChoice", ext));
+    }
+
+    // Notify shell
+    extern "system" {
+        fn SHChangeNotify(wEventId: u32, uFlags: u32, dwItem1: *const std::ffi::c_void, dwItem2: *const std::ffi::c_void);
+    }
+    const SHCNE_ASSOCCHANGED: u32 = 0x08000000;
+    const SHCNF_IDLIST: u32 = 0x0000;
+    unsafe {
+        SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, std::ptr::null(), std::ptr::null());
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
@@ -73,6 +137,10 @@ pub fn run() {
       }
     }))
     .setup(|app| {
+      // Register file associations on app launch (fallback for NSIS)
+      #[cfg(windows)]
+      register_file_assocs();
+
       if cfg!(debug_assertions) {
         app.handle().plugin(
           tauri_plugin_log::Builder::default()
