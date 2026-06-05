@@ -14,7 +14,7 @@ jobs:
   macos:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: macos-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     permissions:
       contents: write
     steps:
@@ -39,8 +39,8 @@ jobs:
           rm -f /tmp/cert.p12
       - name: npm ci
         run: npm ci
-      - name: Build universal DMG
-        run: npx tauri build --bundles dmg --target universal-apple-darwin
+      - name: Build Apple Silicon DMG
+        run: npx tauri build --bundles dmg --target aarch64-apple-darwin
         env:
           CI: true
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
@@ -51,11 +51,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: huiyu-md-macos
-          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
       - name: Attach to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          files: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
 
   windows:
     if: startsWith(github.ref, 'refs/tags/v')
