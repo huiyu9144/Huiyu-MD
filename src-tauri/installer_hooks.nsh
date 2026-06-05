@@ -19,7 +19,7 @@
   WriteRegStr HKCU "Software\Clients\${PRODUCTNAME}\Capabilities\FileAssociations" ".mdown" "HuiyuMD.md"
   WriteRegStr HKCU "Software\Clients\${PRODUCTNAME}\Capabilities\FileAssociations" ".txt" "HuiyuMD.txt"
 
-  ; Register ProgID for .txt files (required for default association on Win10/11)
+  ; Register ProgID for .txt files
   WriteRegStr HKCU "Software\Classes\HuiyuMD.txt" "" "Text File"
   WriteRegStr HKCU "Software\Classes\HuiyuMD.txt\DefaultIcon" "" "$INSTDIR\${MAINBINARYNAME}.exe,0"
   WriteRegStr HKCU "Software\Classes\HuiyuMD.txt\shell\open\command" "" '"$INSTDIR\${MAINBINARYNAME}.exe" "%1"'
@@ -28,6 +28,10 @@
   WriteRegStr HKCU "Software\Classes\HuiyuMD.md" "" "Markdown File"
   WriteRegStr HKCU "Software\Classes\HuiyuMD.md\DefaultIcon" "" "$INSTDIR\${MAINBINARYNAME}.exe,0"
   WriteRegStr HKCU "Software\Classes\HuiyuMD.md\shell\open\command" "" '"$INSTDIR\${MAINBINARYNAME}.exe" "%1"'
+
+  ; Set extension default values (CRITICAL: without this, Windows falls back to Notepad)
+  WriteRegStr HKCU "Software\Classes\.md" "" "HuiyuMD.md"
+  WriteRegStr HKCU "Software\Classes\.txt" "" "HuiyuMD.txt"
 
   ; Add to OpenWithProgids so the app appears in "Open with" menu
   WriteRegStr HKCU "Software\Classes\.md\OpenWithProgids" "HuiyuMD.md" ""
@@ -38,12 +42,10 @@
   WriteRegStr HKCU "Software\Classes\*\shell\Open with ${PRODUCTNAME}" "Icon" "$INSTDIR\${MAINBINARYNAME}.exe"
   WriteRegStr HKCU "Software\Classes\*\shell\Open with ${PRODUCTNAME}\command" "" '"$INSTDIR\${MAINBINARYNAME}.exe" "%1"'
 
-  ; Set as default for .md and .txt using Windows COM API
-  ; On Win10/11, SetAppAsDefaultAll (vtable idx 4) is the modern replacement for SetAppAsDefault
+  ; Try COM API as additional effort (may or may not work on Win10/11)
   System::Call 'OLE32::CoInitializeEx(i 0, i 0)'
   System::Call 'OLE32::CoCreateInstance(g "{591209C7-767B-42B2-9F16-647EEB5F8AB8}", i 0, i 5, g "{4E530B0A-E611-4C77-A3AC-9031D022281B}", *i .r0)'
   ${If} $0 P<> 0
-    ; SetAppAsDefaultAll sets the app as default for ALL its registered extensions at once
     System::Call '$0->4(w "${PRODUCTNAME}")'
     System::Call '$0->2()'
   ${EndIf}
@@ -62,6 +64,9 @@
   ; Remove ProgIDs
   DeleteRegKey HKCU "Software\Classes\HuiyuMD.txt"
   DeleteRegKey HKCU "Software\Classes\HuiyuMD.md"
+  ; Restore extension default values (remove our override so other defaults can take over)
+  DeleteRegValue HKCU "Software\Classes\.md" ""
+  DeleteRegValue HKCU "Software\Classes\.txt" ""
   ; Remove UserChoice so other defaults can be set
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.md\UserChoice"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.txt\UserChoice"
