@@ -1,92 +1,83 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Huiyu MD",
-  "version": "1.5.1",
-  "identifier": "com.huiyu.mdreader",
-  "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Huiyu MD",
-        "width": 1100,
-        "height": 800,
-        "minWidth": 400,
-        "minHeight": 300,
-        "resizable": true,
-        "fullscreen": false,
-        "center": true,
-        "visible": false
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "fileAssociations": [
-      {
-        "ext": [
-          "md",
-          "mdx",
-          "markdown",
-          "mdown"
-        ],
-        "name": "Markdown",
-        "description": "Markdown File",
-        "mimeType": "text/markdown",
-        "role": "Editor"
-      },
-      {
-        "ext": [
-          "txt"
-        ],
-        "name": "Text",
-        "description": "Text File",
-        "mimeType": "text/plain",
-        "role": "Editor"
-      }
-    ],
-    "windows": {
-      "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "displayLanguageSelector": false,
-        "installerHooks": "installer_hooks.nsh"
-      }
-    },
-    "macOS": {
-      "minimumSystemVersion": "10.15",
-      "exceptionDomain": "",
-      "signingIdentity": "Developer ID Application",
-      "hardenedRuntime": true,
-      "entitlements": null,
-      "dmg": {
-        "appPosition": {
-          "x": 180,
-          "y": 170
-        },
-        "applicationFolderPosition": {
-          "x": 480,
-          "y": 170
-        },
-        "windowSize": {
-          "width": 660,
-          "height": 400
-        }
-      }
-    }
-  }
+    "$schema":  "../node_modules/@tauri-apps/cli/config.schema.json",
+    "productName":  "Huiyu MD",
+    "version":  "1.5.1",
+    "identifier":  "com.huiyu.mdreader",
+    "build":  {
+                  "frontendDist":  "../dist",
+                  "devUrl":  "http://localhost:1420",
+                  "beforeDevCommand":  "npm run dev",
+                  "beforeBuildCommand":  "npm run build"
+              },
+    "app":  {
+                "windows":  [
+                                {
+                                    "title":  "Huiyu MD",
+                                    "width":  1100,
+                                    "height":  800,
+                                    "minWidth":  400,
+                                    "minHeight":  300,
+                                    "resizable":  true,
+                                    "fullscreen":  false,
+                                    "center":  true,
+                                    "visible":  false
+                                }
+                            ],
+                "security":  {
+                                 "csp":  null
+                             }
+            },
+    "bundle":  {
+                   "active":  true,
+                   "targets":  "all",
+                   "icon":  [
+                                "icons/32x32.png",
+                                "icons/128x128.png",
+                                "icons/128x128@2x.png",
+                                "icons/icon.icns",
+                                "icons/icon.ico"
+                            ],
+                   "fileAssociations":  [
+                                            {
+                                                "ext":  [
+                                                            "md",
+                                                            "mdx",
+                                                            "markdown",
+                                                            "mdown"
+                                                        ],
+                                                "name":  "Markdown",
+                                                "description":  "Markdown File",
+                                                "mimeType":  "text/markdown",
+                                                "role":  "Editor"
+                                            }
+                                        ],
+                   "windows":  {
+                                   "nsis":  {
+                                                "installerIcon":  "icons/icon.ico",
+                                                "displayLanguageSelector":  false,
+                                                "installerHooks":  "installer_hooks.nsh"
+                                            }
+                               },
+                   "macOS":  {
+                                 "minimumSystemVersion":  "10.15",
+                                 "exceptionDomain":  "",
+                                 "signingIdentity":  "Developer ID Application",
+                                 "hardenedRuntime":  true,
+                                 "entitlements":  null,
+                                 "dmg":  {
+                                             "appPosition":  {
+                                                                 "x":  180,
+                                                                 "y":  170
+                                                             },
+                                             "applicationFolderPosition":  {
+                                                                               "x":  480,
+                                                                               "y":  170
+                                                                           },
+                                             "windowSize":  {
+                                                                "width":  660,
+                                                                "height":  400
+                                                            }
+                                         }
+                             }
+               }
 }

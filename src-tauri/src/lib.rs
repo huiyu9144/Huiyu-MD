@@ -5,7 +5,7 @@ use tauri::Emitter;
 static STARTUP_FILE: OnceLock<String> = OnceLock::new();
 static SINGLE_INSTANCE_FILE: Mutex<Option<String>> = Mutex::new(None);
 
-const FILE_EXTS: &[&str] = &[".md", ".mdx", ".markdown", ".mdown", ".txt"];
+const FILE_EXTS: &[&str] = &[".md", ".mdx", ".markdown", ".mdown"];
 
 fn is_file_arg(arg: &str) -> bool {
     let lower = arg.to_lowercase();
@@ -28,13 +28,11 @@ fn get_startup_file() -> Option<String> {
     STARTUP_FILE.get().cloned()
 }
 
-// Read any file from disk (bypasses Tauri fs scope)
 #[tauri::command]
 fn read_file(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
-// Returns path + content in ONE IPC call (instead of two)
 #[tauri::command]
 fn read_startup_file() -> Option<StartupFile> {
     let path = if let Ok(mut guard) = SINGLE_INSTANCE_FILE.lock() {
@@ -55,9 +53,6 @@ fn read_startup_file() -> Option<StartupFile> {
     None
 }
 
-/// Register file associations for .md and .txt on Windows.
-/// Called on app startup as a fallback in case the NSIS installer hooks
-/// didn't take full effect (e.g. protected extensions, WOW64 issues).
 #[cfg(windows)]
 fn register_file_assocs() {
     use winreg::enums::*;
@@ -76,15 +71,6 @@ fn register_file_assocs() {
         Err(_) => return,
     };
 
-    // Register .txt ProgID
-    if let Ok(progid) = hkcu.create_subkey("HuiyuMD.txt") {
-        let _ = progid.0.set_value("", &"Text File");
-        if let Ok(cmd_key) = progid.0.create_subkey("shell\\open\\command") {
-            let _ = cmd_key.0.set_value("", &cmd);
-        }
-    }
-
-    // Register .md ProgID
     if let Ok(progid) = hkcu.create_subkey("HuiyuMD.md") {
         let _ = progid.0.set_value("", &"Markdown File");
         if let Ok(cmd_key) = progid.0.create_subkey("shell\\open\\command") {
@@ -92,23 +78,16 @@ fn register_file_assocs() {
         }
     }
 
-    // Set extension defaults and OpenWithProgids
-    for ext in &[".txt", ".md"] {
-        // Set default value
+    for ext in &[".md", ".mdx", ".markdown", ".mdown"] {
         if let Ok(k) = hkcu.open_subkey_with_flags(ext, KEY_WRITE) {
-            let progid = if *ext == ".txt" { "HuiyuMD.txt" } else { "HuiyuMD.md" };
-            let _ = k.set_value("", &progid);
+            let _ = k.set_value("", &"HuiyuMD.md");
         }
-        // Set OpenWithProgids
         if let Ok(owp) = hkcu.create_subkey(&format!("{}\\OpenWithProgids", ext)) {
-            let progid = if *ext == ".txt" { "HuiyuMD.txt" } else { "HuiyuMD.md" };
-            let _ = owp.0.set_value(progid, &"");
+            let _ = owp.0.set_value("HuiyuMD.md", &"");
         }
-        // Delete UserChoice
         let _ = hkcu.delete_subkey_all(&format!("{}\\UserChoice", ext));
     }
 
-    // Notify shell
     extern "system" {
         fn SHChangeNotify(wEventId: u32, uFlags: u32, dwItem1: *const std::ffi::c_void, dwItem2: *const std::ffi::c_void);
     }
@@ -137,7 +116,6 @@ pub fn run() {
       }
     }))
     .setup(|app| {
-      // Register file associations on app launch (fallback for NSIS)
       #[cfg(windows)]
       register_file_assocs();
 
