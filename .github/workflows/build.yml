@@ -1,4 +1,4 @@
-﻿name: Build and Release
+name: Build and Release
 
 on:
   push:
@@ -32,10 +32,11 @@ jobs:
         run: |
           echo "$APPLE_CERTIFICATE" | base64 --decode > /tmp/cert.p12
           security create-keychain -p temp temp.keychain
-          security default-keychain -s temp.keychain
+          security set-keychain-settings -lut 21600 temp.keychain
           security unlock-keychain -p temp temp.keychain
           security import /tmp/cert.p12 -k temp.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k temp temp.keychain
+          security list-keychains -d user -s temp.keychain login.keychain
           rm -f /tmp/cert.p12
       - name: npm ci
         run: npm ci
