@@ -1,4 +1,4 @@
-﻿# <p align="center"><img src="src-tauri/icons/logo-rounded.png" width="100" alt="Huiyu MD Logo" /></p>
+# <p align="center"><img src="src-tauri/icons/logo-rounded.png" width="100" alt="Huiyu MD Logo" /></p>
 
 <p align="center">
   <h1 align="center">Huiyu MD</h1>
