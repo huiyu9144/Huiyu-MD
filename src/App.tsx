@@ -7,26 +7,21 @@ import {
   lazy,
   Suspense,
 } from "react";
-import { Clipboard, ClipboardPaste, Coffee, FolderOpen, Info, Moon, Pencil, RotateCcw, Save, Scissors, SquareDashedMousePointer, Sun, X, ZoomIn, ZoomOut } from "lucide-react";
-import { open } from "@tauri-apps/plugin-shell";
 
 const MarkdownRenderer = lazy(async () => ({ default: (await import("./MarkdownRenderer")).MarkdownRenderer }));
 const MarkdownEditor = lazy(async () => ({ default: (await import("./MarkdownEditor")).MarkdownEditor }));
 
 let isTauri = false;
-let tauriDialog = null;
-let tauriFs = null;
 let tauriInvoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T> = null as any;
 let tauriWindow: any = null;
+let tauriDialog: any = null;
+let tauriFs: any = null;
+let tauriOpen: ((url: string) => Promise<void>) | null = null;
 
 async function ensureTauri() {
   if (!isTauri) {
     try {
-      const d = await import("@tauri-apps/plugin-dialog");
-      const f = await import("@tauri-apps/plugin-fs");
       const c = await import("@tauri-apps/api/core");
-      tauriDialog = d;
-      tauriFs = f;
       tauriInvoke = c.invoke;
       const w = await import("@tauri-apps/api/window");
       tauriWindow = w;
@@ -34,6 +29,43 @@ async function ensureTauri() {
     } catch (e) {}
   }
   return isTauri;
+}
+
+async function ensureDialog() {
+  if (!tauriDialog) {
+    tauriDialog = await import("@tauri-apps/plugin-dialog");
+  }
+  return tauriDialog;
+}
+
+async function ensureFs() {
+  if (!tauriFs) {
+    tauriFs = await import("@tauri-apps/plugin-fs");
+  }
+  return tauriFs;
+}
+
+async function ensureOpen() {
+  if (!tauriOpen) {
+    const shell = await import("@tauri-apps/plugin-shell");
+    tauriOpen = shell.open;
+  }
+  return tauriOpen;
+}
+
+let _icons: Record<string, React.ComponentType<{ size?: number }>> | null = null;
+async function icons() {
+  if (!_icons) {
+    const m = await import("lucide-react");
+    _icons = {
+      Clipboard: m.Clipboard, ClipboardPaste: m.ClipboardPaste, Coffee: m.Coffee,
+      FolderOpen: m.FolderOpen, Info: m.Info, Moon: m.Moon, Pencil: m.Pencil,
+      RotateCcw: m.RotateCcw, Save: m.Save, Scissors: m.Scissors,
+      SquareDashedMousePointer: m.SquareDashedMousePointer, Sun: m.Sun, X: m.X,
+      ZoomIn: m.ZoomIn, ZoomOut: m.ZoomOut,
+    };
+  }
+  return _icons;
 }
 
 function getExt(p) {
@@ -47,6 +79,13 @@ interface CtxMenu {
   x: number;
   y: number;
   items: { label?: string; onClick?: () => void; icon?: React.ReactNode; danger?: boolean; disabled?: boolean; separator?: boolean }[];
+}
+
+function I({ name, size = 12 }: { name: string; size?: number }) {
+  const [Comp, setComp] = useState<React.ComponentType<{ size?: number }> | null>(null);
+  useEffect(() => { icons().then(m => setComp(() => m[name])); }, [name]);
+  if (!Comp) return null;
+  return <Comp size={size} />;
 }
 
 export default function App() {
@@ -124,27 +163,20 @@ export default function App() {
     try { localStorage.setItem("theme", theme); } catch {}
   }, [isDark]);
 
-  // Show window AFTER file is loaded and rendered (avoids blank flash)
   useEffect(() => {
     (async () => {
       if (!(await ensureTauri())) return;
       try {
-        // Preload MarkdownRenderer in parallel with IPC call
-        const [startup] = await Promise.all([
-          tauriInvoke<{path:string;content:string}|null>("read_startup_file"),
-          import("./MarkdownRenderer"),
-        ]);
+        const startup = await tauriInvoke<{path:string;content:string}|null>("read_startup_file");
+
+        await tauriWindow.getCurrentWindow().show();
 
         if (startup) {
           setContent(startup.content);
           const parts = startup.path.replace(/\\/g, "/").split("/");
           setFileName(parts[parts.length - 1] ?? startup.path);
           setFilePath(startup.path);
-          // Wait for React to render content
-          await new Promise(r => requestAnimationFrame(r));
         }
-
-        await tauriWindow.getCurrentWindow().show();
       } catch {}
     })();
   }, []);
@@ -181,7 +213,8 @@ export default function App() {
 
   const handleOpen = useCallback(async () => {
     if (await ensureTauri()) {
-      const sel = await tauriDialog.open({
+      const d = await ensureDialog();
+      const sel = await d.open({
         multiple: false,
         filters: [
           { name: "Markdown / Text", extensions: ["md", "mdx", "markdown", "mdown", "txt"] },
@@ -235,7 +268,8 @@ export default function App() {
     if (!(await ensureTauri())) return;
     setSaving(true);
     try {
-      await tauriFs.writeTextFile(filePath, editContent);
+      const fs = await ensureFs();
+      await fs.writeTextFile(filePath, editContent);
       setContent(editContent);
       setMode("view");
       setIsDirty(false);
@@ -256,7 +290,6 @@ export default function App() {
     [content]
   );
 
-  // ---- Close handler with re-entry guard ----
   const closeRequestedRef = useRef(false);
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -266,22 +299,19 @@ export default function App() {
         const { getCurrentWindow } = await import("@tauri-apps/api/window");
         const win = getCurrentWindow();
         unlisten = await win.onCloseRequested((event) => {
-          // Re-entry guard: if we triggered this close ourselves, let it through
           if (closeRequestedRef.current) {
             closeRequestedRef.current = false;
-            return; // do NOT preventDefault → window closes normally
+            return;
           }
-          // No unsaved changes → let close happen
           if (!isDirtyRef.current) {
-            return; // do NOT preventDefault
+            return;
           }
-          // Has unsaved changes → block close and ask
           event.preventDefault();
           const ok = window.confirm("There are unsaved changes. Close anyway?");
           if (ok) {
             isDirtyRef.current = false;
             closeRequestedRef.current = true;
-            win.close(); // re-triggers onCloseRequested, but guard will let it through
+            win.close();
           }
         });
       } catch (e) {
@@ -293,7 +323,6 @@ export default function App() {
     };
   }, []);
 
-  // ---- Drag-drop ----
   useEffect(() => {
     let cleanup: (() => void) | null = null;
     (async () => {
@@ -322,7 +351,6 @@ export default function App() {
     };
   }, []);
 
-  // ---- Context menu (React onContextMenu on root) ----
   const clipboard = {
     cut: () => { try { document.execCommand("cut"); } catch (_) {} },
     copy: () => { try { document.execCommand("copy"); } catch (_) {} },
@@ -338,43 +366,43 @@ export default function App() {
 
       if (modeRef.current === "edit") {
         const items: Item[] = [
-          { label: "Cut", icon: <Scissors size={12} />, onClick: clipboard.cut, disabled: !hasSelection },
-          { label: "Copy", icon: <Clipboard size={12} />, onClick: clipboard.copy, disabled: !hasSelection },
-          { label: "Paste", icon: <ClipboardPaste size={12} />, onClick: clipboard.paste },
+          { label: "Cut", icon: <I name="Scissors" />, onClick: clipboard.cut, disabled: !hasSelection },
+          { label: "Copy", icon: <I name="Clipboard" />, onClick: clipboard.copy, disabled: !hasSelection },
+          { label: "Paste", icon: <I name="ClipboardPaste" />, onClick: clipboard.paste },
           { separator: true },
-          { label: "Select All", icon: <SquareDashedMousePointer size={12} />, onClick: clipboard.selectAll },
+          { label: "Select All", icon: <I name="SquareDashedMousePointer" />, onClick: clipboard.selectAll },
           { separator: true },
-          { label: "Save", icon: <Save size={12} />, onClick: saveEdit, disabled: !isDirtyRef.current || savingRef.current },
-          { label: "Cancel", icon: <X size={12} />, onClick: cancelEdit, disabled: savingRef.current },
+          { label: "Save", icon: <I name="Save" />, onClick: saveEdit, disabled: !isDirtyRef.current || savingRef.current },
+          { label: "Cancel", icon: <I name="X" />, onClick: cancelEdit, disabled: savingRef.current },
           { separator: true },
-          { label: "Zoom In", icon: <ZoomIn size={12} />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
-          { label: "Zoom Out", icon: <ZoomOut size={12} />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
-          { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
+          { label: "Zoom In", icon: <I name="ZoomIn" />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
+          { label: "Zoom Out", icon: <I name="ZoomOut" />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
+          { label: `Reset Zoom (${zoom}%)`, icon: <I name="RotateCcw" />, onClick: zoomReset, disabled: zoom === 100 },
           { separator: true },
-          { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
+          { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <I name="Sun" /> : <I name="Moon" />, onClick: toggleTheme },
           { separator: true },
-          { label: "Buy Me a Coffee", icon: <Coffee size={12} />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
-          { label: "About", icon: <Info size={12} />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
+          { label: "Buy Me a Coffee", icon: <I name="Coffee" />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
+          { label: "About", icon: <I name="Info" />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
       } else {
         const appItems: Item[] = contentRef.current ? [
-          { label: "Edit", icon: <Pencil size={12} />, onClick: enterEdit, disabled: !MD_EXTS.has(getExt(filePath || fileName)) },
-          { label: "Open file...", icon: <FolderOpen size={12} />, onClick: handleOpen },
+          { label: "Edit", icon: <I name="Pencil" />, onClick: enterEdit, disabled: !MD_EXTS.has(getExt(filePath || fileName)) },
+          { label: "Open file...", icon: <I name="FolderOpen" />, onClick: handleOpen },
         ] : [];
         const items: Item[] = [
-          { label: "Copy", icon: <Clipboard size={12} />, onClick: clipboard.copy, disabled: !hasSelection },
-          ...(contentRef.current ? [{ label: "Select All", icon: <SquareDashedMousePointer size={12} />, onClick: clipboard.selectAll }] : []),
+          { label: "Copy", icon: <I name="Clipboard" />, onClick: clipboard.copy, disabled: !hasSelection },
+          ...(contentRef.current ? [{ label: "Select All", icon: <I name="SquareDashedMousePointer" />, onClick: clipboard.selectAll }] : []),
           ...(appItems.length > 0 ? [{ separator: true as const }, ...appItems] : []),
           { separator: true },
-          { label: "Zoom In", icon: <ZoomIn size={12} />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
-          { label: "Zoom Out", icon: <ZoomOut size={12} />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
-          { label: `Reset Zoom (${zoom}%)`, icon: <RotateCcw size={12} />, onClick: zoomReset, disabled: zoom === 100 },
+          { label: "Zoom In", icon: <I name="ZoomIn" />, onClick: zoomIn, disabled: zoom >= ZOOM_MAX },
+          { label: "Zoom Out", icon: <I name="ZoomOut" />, onClick: zoomOut, disabled: zoom <= ZOOM_MIN },
+          { label: `Reset Zoom (${zoom}%)`, icon: <I name="RotateCcw" />, onClick: zoomReset, disabled: zoom === 100 },
           { separator: true },
-          { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <Sun size={12} /> : <Moon size={12} />, onClick: toggleTheme },
+          { label: isDark ? "Switch to Light" : "Switch to Dark", icon: isDark ? <I name="Sun" /> : <I name="Moon" />, onClick: toggleTheme },
           { separator: true },
-          { label: "Buy Me a Coffee", icon: <Coffee size={12} />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
-          { label: "About", icon: <Info size={12} />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
+          { label: "Buy Me a Coffee", icon: <I name="Coffee" />, onClick: () => { setCtxMenu(null); setShowCoffee(true); } },
+          { label: "About", icon: <I name="Info" />, onClick: () => { setCtxMenu(null); setShowAbout(true); } },
         ];
         setCtxMenu({ x: e.clientX, y: e.clientY, items });
       }
@@ -382,7 +410,6 @@ export default function App() {
     [isDark, toggleTheme, saveEdit, cancelEdit, enterEdit, handleOpen, filePath, fileName, zoom, zoomIn, zoomOut, zoomReset, setShowCoffee, setShowAbout]
   );
 
-  // Close context menu on click outside
   useEffect(() => {
     if (!ctxMenu) return;
     const close = () => setCtxMenu(null);
@@ -390,7 +417,6 @@ export default function App() {
     return () => window.removeEventListener("click", close);
   }, [ctxMenu]);
 
-  // ---- Keyboard shortcuts ----
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s" && mode === "edit") {
@@ -405,7 +431,6 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [mode, saveEdit, cancelEdit]);
 
-  // Listen for file-open events (second instance via single_instance)
   useEffect(() => {
     let unlisten: (() => void) | undefined;
     (async () => {
@@ -435,7 +460,6 @@ export default function App() {
         handleDrop(e);
       }}
     >
-      {/* Content area */}
       <div
         className={`custom-scrollbar relative z-10 flex-1 overflow-auto p-3 transition-colors ${
           mode === "edit" ? "bg-[var(--color-code-bg)]" : "bg-[var(--color-header-bg)]"
@@ -489,12 +513,10 @@ export default function App() {
         </Suspense>
       </div>
 
-      {/* Drag-over hint */}
       {dragOver && mode === "view" && (
         <div className="pointer-events-none absolute inset-0 z-40 m-2 rounded border-2 border-dashed border-[var(--color-link)]/60" />
       )}
 
-      {/* Bottom toolbar trigger */}
       <div
         className="absolute bottom-0 left-0 right-0 z-20"
         style={{ height: bottomH || 30 }}
@@ -526,7 +548,7 @@ export default function App() {
               className="rounded p-1 text-neutral-500 hover:bg-[var(--color-btn-hover-bg)] hover:text-[var(--color-btn-hover-text)]"
               title="Open file"
             >
-              <FolderOpen size={12} />
+              <I name="FolderOpen" />
             </button>
             {content && isMd && (
               <button
@@ -535,7 +557,7 @@ export default function App() {
                 className="rounded p-1 text-neutral-500 hover:bg-[var(--color-btn-hover-bg)] hover:text-[var(--color-btn-hover-text)]"
                 title="Edit"
               >
-                <Pencil size={12} />
+                <I name="Pencil" />
               </button>
             )}
             <button
@@ -544,7 +566,7 @@ export default function App() {
               className="rounded p-1 text-neutral-500 hover:bg-[var(--color-btn-hover-bg)] hover:text-[var(--color-btn-hover-text)]"
               title={isDark ? "Light" : "Dark"}
             >
-              {isDark ? <Sun size={12} /> : <Moon size={12} />}
+              {isDark ? <I name="Sun" /> : <I name="Moon" />}
             </button>
           </>
         )}
@@ -557,7 +579,7 @@ export default function App() {
               className="rounded p-1 text-neutral-500 hover:bg-[var(--color-btn-hover-bg)] hover:text-[var(--color-btn-hover-text)] disabled:opacity-50"
               title="Cancel (Esc)"
             >
-              <X size={12} />
+              <I name="X" />
             </button>
             <button
               type="button"
@@ -568,7 +590,7 @@ export default function App() {
               }`}
               title="Save (Ctrl+S)"
             >
-              <Save size={12} />
+              <I name="Save" />
             </button>
             <button
               type="button"
@@ -576,13 +598,12 @@ export default function App() {
               className="rounded p-1 text-neutral-500 hover:bg-[var(--color-btn-hover-bg)] hover:text-[var(--color-btn-hover-text)]"
               title={isDark ? "Light" : "Dark"}
             >
-              {isDark ? <Sun size={12} /> : <Moon size={12} />}
+              {isDark ? <I name="Sun" /> : <I name="Moon" />}
             </button>
           </>
         )}
       </div>
 
-      {/* Context menu dropdown */}
       {ctxMenu && (
         <div
           className="fixed z-50 min-w-[160px] rounded border border-[var(--color-code-border)] bg-[var(--color-header-bg)] py-1 shadow-lg"
@@ -614,8 +635,6 @@ export default function App() {
         </div>
       )}
 
-
-
       {showCoffee && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={() => setShowCoffee(false)}>
           <div
@@ -625,11 +644,11 @@ export default function App() {
           >
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <Coffee size={16} />
+                <I name="Coffee" size={16} />
                 Buy Me a Coffee
               </div>
               <button onClick={() => setShowCoffee(false)} className="rounded p-1 hover:bg-neutral-700/50">
-                <X size={14} />
+                <I name="X" size={14} />
               </button>
             </div>
             <div className="mb-3 flex items-center justify-center gap-3">
@@ -656,7 +675,7 @@ export default function App() {
               />
               {coffeeTab === "paypal" && (
                 <button
-                  onClick={() => open("https://www.paypal.com/ncp/payment/WBPVVVJRMZNHQ")}
+                  onClick={async () => (await ensureOpen())("https://www.paypal.com/ncp/payment/WBPVVVJRMZNHQ")}
                   className="w-40 rounded-md bg-neutral-100 py-1.5 text-center text-xs font-semibold text-neutral-900 transition-colors hover:bg-neutral-300"
                 >
                   PayPal
@@ -679,30 +698,30 @@ export default function App() {
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <Info size={16} />
+                <I name="Info" size={16} />
                 About
               </div>
               <button onClick={() => setShowAbout(false)} className="rounded p-1 hover:bg-neutral-700/50">
-                <X size={14} />
+                <I name="X" size={14} />
               </button>
             </div>
             <div className="flex flex-col items-center gap-3">
               <img src="/logo.png" alt="Huiyu MD" className="h-16 w-16 rounded-xl" />
               <div className="text-center">
                 <div className="text-sm font-bold">Huiyu MD</div>
-                <div className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>v1.4.0</div>
+                <div className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>v1.5.1</div>
               </div>
               <div className={`w-full rounded-lg border p-3 text-xs ${isDark ? "border-neutral-700 bg-neutral-800" : "border-neutral-200 bg-neutral-50"}`}>
                 <div className="mb-2 text-center font-medium">Developer</div>
                 <div className="flex flex-col items-center gap-2">
                   <button
-                    onClick={() => open("https://www.huiyu.ai")}
+                    onClick={async () => (await ensureOpen())("https://www.huiyu.ai")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     🌐 www.huiyu.ai
                   </button>
                   <button
-                    onClick={() => open("https://github.com/huiyu9144/Huiyu-MD")}
+                    onClick={async () => (await ensureOpen())("https://github.com/huiyu9144/Huiyu-MD")}
                     className={`flex items-center gap-1.5 transition-colors ${isDark ? "text-[#75B3CB] hover:text-[#8fc5d9]" : "text-cyan-600 hover:text-cyan-700"}`}
                   >
                     💻 GitHub

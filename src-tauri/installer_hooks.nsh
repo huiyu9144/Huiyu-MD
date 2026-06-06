@@ -1,5 +1,5 @@
 ; installer_hooks.nsh - Huiyu MD
-; Registers .md file associations safely (no Explorer restart)
+; Registers .md file associations
 
 !macro NSIS_HOOK_PREINSTALL
 !macroend
@@ -42,12 +42,6 @@
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.mdx\UserChoice"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.markdown\UserChoice"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.mdown\UserChoice"
-
-  ; --- Notify shell (safe, no restart needed) ---
-  System::Call 'SHELL32::SHChangeNotify(i 0x08000000, i 0x0003, i 0, i 0)'
-
-  ; --- Show message ---
-  MessageBox MB_OK "Huiyu MD installed successfully!$\r$\n$\r$\n.md files are now associated with Huiyu MD."
 !macroend
 
 !macro NSIS_HOOK_PREUNINSTALL
@@ -63,5 +57,4 @@
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.mdx\UserChoice"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.markdown\UserChoice"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.mdown\UserChoice"
-  DeleteRegKey HKCU "Software\Classes\*\shell\Open with ${PRODUCTNAME}"
 !macroend

@@ -54,9 +54,14 @@ fn read_startup_file() -> Option<StartupFile> {
 }
 
 #[cfg(windows)]
-fn register_file_assocs() {
+fn register_file_assocs_once() {
     use winreg::enums::*;
     use winreg::RegKey;
+
+    let marker = std::env::temp_dir().join("huiyu_md_assoc_registered");
+    if marker.exists() {
+        return;
+    }
 
     let app_exe = match std::env::current_exe() {
         Ok(p) => p,
@@ -85,17 +90,9 @@ fn register_file_assocs() {
         if let Ok(owp) = hkcu.create_subkey(&format!("{}\\OpenWithProgids", ext)) {
             let _ = owp.0.set_value("HuiyuMD.md", &"");
         }
-        let _ = hkcu.delete_subkey_all(&format!("{}\\UserChoice", ext));
     }
 
-    extern "system" {
-        fn SHChangeNotify(wEventId: u32, uFlags: u32, dwItem1: *const std::ffi::c_void, dwItem2: *const std::ffi::c_void);
-    }
-    const SHCNE_ASSOCCHANGED: u32 = 0x08000000;
-    const SHCNF_IDLIST: u32 = 0x0000;
-    unsafe {
-        SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, std::ptr::null(), std::ptr::null());
-    }
+    let _ = std::fs::write(&marker, b"1");
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -117,7 +114,7 @@ pub fn run() {
     }))
     .setup(|app| {
       #[cfg(windows)]
-      register_file_assocs();
+      std::thread::spawn(|| register_file_assocs_once());
 
       if cfg!(debug_assertions) {
         app.handle().plugin(

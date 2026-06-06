@@ -61,9 +61,12 @@
   --color-btn-hover-text: #4a4a4a;
 }
 
+html, body {
+  background: #171717;
+}
+
 body {
   margin: 0;
-  background: var(--color-neutral-950);
   color: var(--color-neutral-200);
   font-family: var(--font-sans);
 }
@@ -108,4 +111,3 @@ button:not(:disabled) {
   overflow-x: auto;
   overflow-y: hidden;
 }
-
