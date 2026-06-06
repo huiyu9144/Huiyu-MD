@@ -709,7 +709,7 @@ export default function App() {
               <img src="/logo.png" alt="Huiyu MD" className="h-16 w-16 rounded-xl" />
               <div className="text-center">
                 <div className="text-sm font-bold">Huiyu MD</div>
-                <div className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>v1.5.1</div>
+                <div className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>v1.5.2</div>
               </div>
               <div className={`w-full rounded-lg border p-3 text-xs ${isDark ? "border-neutral-700 bg-neutral-800" : "border-neutral-200 bg-neutral-50"}`}>
                 <div className="mb-2 text-center font-medium">Developer</div>
